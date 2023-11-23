@@ -4,13 +4,12 @@ import pickle
 import streamlit as st
 import matplotlib.pyplot as plt
 from streamlit_option_menu import option_menu
+from streamlit_gsheets import GSheetsConnection
 
 
 from PIL import Image
 
 image = Image.open('Bobot fitur.jpg')
-
-
 
 
 def main():
@@ -36,7 +35,7 @@ def main():
         st.write('Prediksi performa akademik ini menggunakan dua sumber data yaitu 1). Data Akademik yang berasal dari aktifitas mahasiswa di LMS (Moodle),  2). Data non-akademik (ekonomi, domisili, gender, keikutsertaan mahasiswa dalam berorganisasi kampus). Sistem informasi prediksi ini sangat tepat jika digunakan untuk memprediksi performa akademik mahasiswa semester dua dan empat.')
         
         st.subheader("Masukkan Data Diri Anda")
-        nama = st.text_input("Nama")
+        nama = st.text_input('Nama :blue[(Nama Anda tidak dipublikasikan)]')
 
         colus,colkel = st.columns(2)
         with colus:
@@ -172,22 +171,30 @@ def main():
             st.success (f"Hasil Prediksi : %.2f" % predit)
 
             #Simpan data
-            df = pd.read_csv("Data_prediksi_pengguna.csv")
-            new_data = {"Nama":nama, "Status":status, "Jenis_Kelamin":jenkel, "Kota_Tinggal":kota_tinggal, "Jenis Kelamin":jekel, 
+            conn = st.connection("gsheets", type=GSheetsConnection)
+            data1 = conn.read(worksheet="HasilPrediksi",usecols=list(range(22)), ttl=5)
+            data1 = data1.dropna(how="all")
+            
+            data_prediksi = pd.DataFrame(
+                [
+                    {
+                        "Nama":nama, "Status":status, "Jenis_Kelamin":jenkel, "Kota_Tinggal":kota_tinggal, "Jenis Kelamin":jekel, 
                         "Ekonomi":pendap, "Domisili":Domisili, "Organisasi Kampus":Campus_organization,
                         "Jumlah Login LMS":Total_login, "Jumlah Akses Forum":N_access_forum, "Jumlah Akses Materi":N_access_didactic_units, 
                         "Jumlah Tugas":Total_assignments, "Jumlah Upload Tugas":N_assignments_submitted, "Jumlah Membuka Quiz":N_access_questionnaires,
                         "Jumlah Melengkapi Quiz":N_attempts_questionnaires, "Jumlah Menjawab Quiz":N_answered_questions, 
                         "Jumlah Melihat Quiz":N_questionnaire_views, "Jumlah Mengirim Quiz":N_questionnaires_submitted,    
                         "Jumlah Ulasan Quiz":N_reviews_questionnaire,  "Minggu Keberapa Akses LMS":Days_first_access_x,   
-                        "Jumlah Masuk Ke Mata Kuliah":N_entries_course_x, "Hasil Prediksi":predit
-                        }
+                        "Jumlah Masuk Ke Mata Kuliah":N_entries_course_x, "Hasil Prediksi":predit,
+                    }
+                ]
+            )
 
-            df = df.append(new_data, ignore_index=True)
-            df.to_csv("Data_prediksi_pengguna.csv", index=False)
-            v_data = df.iloc[:, 4:22]
-            vlast= v_data.tail(1)
-            st.dataframe(vlast.set_index(vlast.columns[0]))
+            # Add the new vendor data to the existing data
+            updated_df = pd.concat([data1, data_prediksi], ignore_index=True)
+            conn.update(worksheet="HasilPrediksi", data=updated_df)
+            v_data = data_prediksi.iloc[:, 4:22]
+            st.dataframe(v_data)
             
 
         #menyimpan data agar bisa didownload di txt
@@ -221,11 +228,18 @@ def main():
 
     elif choice == "Hasil":
         st.subheader("Data Hasil Prediksi")
-        df = pd.read_csv("Data_prediksi_pengguna.csv")
-        v_data = df.iloc[:, 4:22]
-        st.dataframe(v_data.set_index(v_data.columns[0]))
+        conn = st.connection("gsheets", type=GSheetsConnection)
+        data1 = conn.read(worksheet="HasilPrediksi",usecols=list(range(22)), ttl=5)
+        data1 = data1.dropna(how="all")
+        v_data = data1.iloc[:, 4:22]
+        st.dataframe(v_data)
         
     elif choice == "Penilaian":
+
+        conn = st.connection("gsheets", type=GSheetsConnection)
+        datapenilaian = conn.read(worksheet="HasilPenilaian",usecols=list(range(6)), ttl=5)
+        datapenilaian = datapenilaian.dropna(how="all")
+ 
         st.subheader("Nilai Aplikasi dan Saran")
         st.write('Berikan penilaian terhadap sisterm informasi ini')
 
@@ -306,20 +320,26 @@ def main():
 
             #Simpan data penilaian
         if submit_button:
-            dfs = pd.read_csv("PenilaianMasukan.csv")
-            new_data = {"Kemudahan Penggunaan":kemudahan, "Kelengkapan Prediksi":kelengkapan, 
-                        "Informasi Yang Disajikan":informasi, "Kualitas Sistem Informasi":kualitas, 
-                        "Kepuasan Penggunaan":kepuasan, "Masukan":saran
+            data_penilaian = pd.DataFrame(
+                    [
+                        {
+                            "Kemudahan Penggunaan":kemudahan, 
+                            "Kelengkapan Prediksi":kelengkapan, 
+                            "Informasi Yang Disajikan":informasi, 
+                            "Kualitas Sistem Informasi":kualitas, 
+                            "Kepuasan Penggunaan":kepuasan, 
+                            "Masukan":saran,
                         }
+                    ]
+                )
 
-            dfs = dfs.append(new_data, ignore_index=True)
-            dfs.to_csv("PenilaianMasukan.csv", index=False)
+            # Add the new vendor data to the existing data
+            updated_df = pd.concat([data1, data_penilaian], ignore_index=True)
+            conn.update(worksheet="HasilPenilaian", data=updated_df)
+            st.success("Terima kasih telah melakukan penilaian")
 
             form.info("Data berhasil disimpan, Terima kasih atas penialaian dan saran Anda")
 
-
-        df1 = pd.read_csv("PenilaianMasukan.csv")
-        #st.write('Data Hasil Penilaian:', df1)  #Menampilkan tabel penilaian
 
         st.write('**Grafik Hasil Penilaian Pengguna**')
 
@@ -327,7 +347,7 @@ def main():
         with colo1:
             #Grafik penilaian kemudahan penggunaan
             st.write('*Kemudahan Penggunaan*')
-            x= df1['Kemudahan Penggunaan'].tolist()
+            x= datapenilaian['Kemudahan Penggunaan'].tolist()
             count_value = 1
             counti = x.count(count_value)
             count_value = 2
@@ -350,7 +370,7 @@ def main():
 
             #Grafik penilaian kelengkapan prediksi
             st.write('*Kelengkapan Prediksi*')
-            xs=df1['Kelengkapan Prediksi'].tolist()
+            xs=datapenilaian['Kelengkapan Prediksi'].tolist()
             count_value2 = 1
             counti = xs.count(count_value2)
             count_value2 = 2
@@ -372,7 +392,7 @@ def main():
 
             #Grafik penilaian informasi yang disajikan
             st.write('*Informasi Yang Disajikan*')
-            xs2=df1['Informasi Yang Disajikan'].tolist()
+            xs2=datapenilaian['Informasi Yang Disajikan'].tolist()
             count_value = 1
             counti = xs2.count(count_value)
             count_value = 2
@@ -395,7 +415,7 @@ def main():
         with colo2:
             #Grafik penilaian kualitas sistem informasi
             st.write('*Kualitas Sistem Informasi*')
-            xs3=df1['Kualitas Sistem Informasi'].tolist()
+            xs3=datapenilaian['Kualitas Sistem Informasi'].tolist()
             count_value = 1
             counti = xs3.count(count_value)
             count_value = 2
@@ -406,24 +426,19 @@ def main():
             counti3 = xs3.count(count_value)
 
             #Bar chart
-            #sizes = pd.DataFrame({
-            #    'index': ['Kurang Baik', 'Cukup Baik', 'Baik', 'Sangat Baik'],
-            #    'Penilaian':[counti, counti1, counti2, counti3],
-            #}).set_index('index')
-            #st.bar_chart(sizes)
             labels = 'Kurang Baik', 'Cukup Baik', 'Baik', 'Sangat Baik'
             sizes = [counti, counti1, counti2, counti3]
             fig5, ax5 = plt.subplots()
             plt.bar(labels, sizes)
             ax5.set_ylabel("Penilaian")
-            ax5.set_xlabel("Kategori Nilai")
+            #ax5.set_xlabel("Kategori Nilai")
             #ax5.set_title("Layanan")
             #plt.grid(axis='y')
             st.pyplot(fig5)
          
             #Grafik penilaian kepuasan pengguna
             st.write('*Kepuasan Penggunaan*')
-            xs4=df1['Kepuasan Penggunaan'].tolist()
+            xs4=datapenilaian['Kepuasan Penggunaan'].tolist()
             count_value = 1
             counti = xs4.count(count_value)
             count_value = 2
@@ -440,29 +455,16 @@ def main():
             fig5, ax5 = plt.subplots()
             plt.bar(labels, sizes)
             ax5.set_ylabel("Penilaian")
-            ax5.set_xlabel("Kategori Nilai")
-            #ax5.set_title("Layanan")
-            #plt.grid(axis='y')
             st.pyplot(fig5)
 
     elif choice == "Tentang":
         st.subheader("Tentang Aplikasi")
-        st.write('Sistem Informasi Prediksi Performa Akademik Mahasiswa ini dibuat dengan menggunakan bahasa pemprograman :blue[Python] dan :blue[Streamlit], Sisfo ini menggunakan model yang terbentuk dari algoritma :blue[Gradient Boosting Trees] yang telah dioptimasi hyperparameternya dengan menggunakan algoritma :blue[Gread Search]. Sedangkan data yang digunakan untuk membangun model berasal dari data akademik dan data non-akademikdemik yang diperoleh dari :blue[Universitas Muria Kudus].')
+        st.write('Sistem Informasi Prediksi Performa Akademik Mahasiswa ini dibuat dengan menggunakan bahasa pemprograman :blue[Python] dan :blue[Streamlit] sedangkan database yang digunakan adalah :blue[Google Sheets], Sisfo ini menggunakan model yang terbentuk dari algoritma :blue[Gradient Boosting Trees] yang telah dioptimasi hyperparameternya dengan menggunakan algoritma :blue[Gread Search]. Sedangkan data yang digunakan untuk membangun model berasal dari data akademik dan data non-akademikdemik yang diperoleh dari :blue[Universitas Muria Kudus].')
         st.write('Dalam melakukan prediksi Model ini memiliki tingkat kesalahan sebesar :blue[37%], Adapun nilai bobot dari masing-masing fitur ditunjukkan pada halaman prediksi dan pada gambar dibawah ini.')
 
         st.image(image, caption='Bobot Fitur')
 
         st.write('Untuk informasi lebih lanjut terkait Prediksi Performa Akademik Mahasiswa ini, dapat menghubungi Email: :blue[arifin.m@umk.ac.id] ')
-
-        txt_input= st.text_input('Masukkan Kode Download, Untuk Mendownload Hasil Prediksi', type="password")
-
-        with open('PenilaianMasukan.csv','rb') as f:
-            if txt_input == "Ijin Sedot":    
-                st.download_button('Download Penilaian', f, file_name='PenilaianMasukan.csv', disabled=not txt_input)  # Defaults to 'text/plain'
-
-        with open('Data_prediksi_pengguna.csv','rb') as f:
-           if txt_input == "Ijin Sedot": 
-                st.download_button('Download Hasil Prediksi', f, file_name='HasilPrediksi.csv')  # Defaults to 'text/plain'
 
 
 if __name__ == '__main__':
