@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from streamlit_option_menu import option_menu
 from streamlit_gsheets import GSheetsConnection
 
-
 from PIL import Image
 
 image = Image.open('Bobot fitur.jpg')
