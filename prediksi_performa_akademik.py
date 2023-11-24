@@ -51,7 +51,8 @@ def main():
 
         st.subheader("Masukkan Data Akademik (Kegiatan di LMS)")
         st.write('Perlu dipahami bahwasanya masing-masing fitur memiliki bobot yang berbeda, masing-masing bobot ditunjukkan pada caption fitur')
-
+        st.write('Untuk menginputkan nilai, silahkan :blue[geser slider kekanan untuk menambah atau kekiri untuk mengurangi]')
+        
         col1,col2 = st.columns(2)
         with col1:
             Total_login = st.slider('Jumlah Login LMS :blue[(0,120)]', 0, 140)
@@ -197,35 +198,7 @@ def main():
                 v_data = data_prediksi.iloc[:, 4:22]
                 st.dataframe(v_data)
             
-        #menyimpan data agar bisa didownload di txt
-        isi = ( "Prediksi Performa Akademik Mahasiswa Menggunakan Data Non-Akademik dan Akademik" + "\n" + "\n" +
-                "#Data Non Akademik" + "\n" +
-                "Gender = " + jekel + "\n" +
-                "Domisili = " + str(Domisili) + "\n" +
-                "Pendapatan Orang Tua = " + pendap + "\n" +
-                "Jumlah Organisasi Kampus Yang Diikuti = " + str(Campus_organization) + "\n" + "\n" +
-                
-                "#Data Akademik (Kegiatan di LMS)" + "\n" +
-                "Jumlah Login LMS = " + str(Total_login) + "\n" +
-                "Jumlah Akses Forum LMS = " + str(N_access_forum) + "\n" +
-                "Jumlah Akses Materi = " + str(N_access_didactic_units) + "\n" +
-                "Jumlah Tugas = " + str(Total_assignments) + "\n" +
-                "Jumlah Upload Tugas = " + str(N_assignments_submitted) + "\n" +
-                "Jumlah Membuka Quiz = " + str(N_access_questionnaires) + "\n" +
-                "Jumlah Melengkapi Quiz = " + str(N_attempts_questionnaires) + "\n" +
-                "Jumlah Menjawab Quiz = " + str(N_answered_questions) + "\n" +
-                "Jumlah Melihat Quiz = " + str(N_questionnaire_views) + "\n" +
-                "Jumlah Mengirim Quiz = " + str(N_questionnaires_submitted) + "\n" +
-                "Jumlah Ulasan Quiz = " + str(N_reviews_questionnaire) + "\n" +
-                "Minggu Keberapa Akses LMS = " + str(Days_first_access_x) + "\n" +
-                "Jumlah Masuk Ke Mata Kuliah = " + str(N_entries_course_x) + "\n" + "\n" +
-                
-                "#Hasil Prediksi adalah = " + str(predit)
-                )
-
-        st.download_button('Download Hasil Prediksi', data=isi, file_name="Hasil-prediksi.txt")
-
-
+       
     elif choice == "Hasil":
         st.subheader("Data Hasil Prediksi")
         conn = st.connection("gsheets", type=GSheetsConnection)
