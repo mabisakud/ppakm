@@ -336,8 +336,6 @@ def main():
             # Add the new vendor data to the existing data
             updated_df = pd.concat([datapenilaian, data_penilaian], ignore_index=True)
             conn.update(worksheet="HasilPenilaian", data=updated_df)
-            st.success("Terima kasih telah melakukan penilaian")
-
             form.info("Data berhasil disimpan, Terima kasih atas penialaian dan saran Anda")
 
 
