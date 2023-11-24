@@ -196,6 +196,7 @@ def main():
                 conn.update(worksheet="HasilPrediksi", data=updated_df)
                 v_data = data_prediksi.iloc[:, 4:22]
                 st.dataframe(v_data)
+                st.write('Untuk mendownload hasil prediksi, silahkan kepojok kanan dari tabel, lalu klik download')
             
        
     elif choice == "Hasil":
