@@ -160,43 +160,45 @@ def main():
 
 
         if st.button('Prediksi Performa'):
-            predit = model.predict(
-                [[Gender, Domicile, Economy, Campus_organization, 
-                  Total_login, N_access_forum, N_access_didactic_units, 
-                  Total_assignments, N_assignments_submitted, N_access_questionnaires, 
-                  N_attempts_questionnaires, N_answered_questions, 
-                  N_questionnaire_views, N_questionnaires_submitted, 
-                  N_reviews_questionnaire, Days_first_access_x, N_entries_course_x]]
-            )
-            st.success (f"Hasil Prediksi : %.2f" % predit)
-
-            #Simpan data
-            conn = st.connection("gsheets", type=GSheetsConnection)
-            data1 = conn.read(worksheet="HasilPrediksi",usecols=list(range(22)), ttl=5)
-            data1 = data1.dropna(how="all")
+            if not nama or not kota_tinggal:
+                st.warning("Pastikan semua textbox terisi.")
+            else:
+                predit = model.predict(
+                    [[Gender, Domicile, Economy, Campus_organization, 
+                      Total_login, N_access_forum, N_access_didactic_units, 
+                      Total_assignments, N_assignments_submitted, N_access_questionnaires, 
+                      N_attempts_questionnaires, N_answered_questions, 
+                      N_questionnaire_views, N_questionnaires_submitted, 
+                      N_reviews_questionnaire, Days_first_access_x, N_entries_course_x]]
+                )
+                st.success (f"Hasil Prediksi : %.2f" % predit)
+    
+                #Simpan data
+                conn = st.connection("gsheets", type=GSheetsConnection)
+                data1 = conn.read(worksheet="HasilPrediksi",usecols=list(range(22)), ttl=5)
+                data1 = data1.dropna(how="all")
+                
+                data_prediksi = pd.DataFrame(
+                    [
+                        {
+                            "Nama":nama, "Status":status, "Jenis_Kelamin":jenkel, "Kota_Tinggal":kota_tinggal, "Jenis Kelamin":jekel, 
+                            "Ekonomi":pendap, "Domisili":Domisili, "Organisasi Kampus":Campus_organization,
+                            "Jumlah Login LMS":Total_login, "Jumlah Akses Forum":N_access_forum, "Jumlah Akses Materi":N_access_didactic_units, 
+                            "Jumlah Tugas":Total_assignments, "Jumlah Upload Tugas":N_assignments_submitted, "Jumlah Membuka Quiz":N_access_questionnaires,
+                            "Jumlah Melengkapi Quiz":N_attempts_questionnaires, "Jumlah Menjawab Quiz":N_answered_questions, 
+                            "Jumlah Melihat Quiz":N_questionnaire_views, "Jumlah Mengirim Quiz":N_questionnaires_submitted,    
+                            "Jumlah Ulasan Quiz":N_reviews_questionnaire,  "Minggu Keberapa Akses LMS":Days_first_access_x,   
+                            "Jumlah Masuk Ke Mata Kuliah":N_entries_course_x, "Hasil Prediksi":predit,
+                        }
+                    ]
+                )
+    
+                # Add the new vendor data to the existing data
+                updated_df = pd.concat([data1, data_prediksi], ignore_index=True)
+                conn.update(worksheet="HasilPrediksi", data=updated_df)
+                v_data = data_prediksi.iloc[:, 4:22]
+                st.dataframe(v_data)
             
-            data_prediksi = pd.DataFrame(
-                [
-                    {
-                        "Nama":nama, "Status":status, "Jenis_Kelamin":jenkel, "Kota_Tinggal":kota_tinggal, "Jenis Kelamin":jekel, 
-                        "Ekonomi":pendap, "Domisili":Domisili, "Organisasi Kampus":Campus_organization,
-                        "Jumlah Login LMS":Total_login, "Jumlah Akses Forum":N_access_forum, "Jumlah Akses Materi":N_access_didactic_units, 
-                        "Jumlah Tugas":Total_assignments, "Jumlah Upload Tugas":N_assignments_submitted, "Jumlah Membuka Quiz":N_access_questionnaires,
-                        "Jumlah Melengkapi Quiz":N_attempts_questionnaires, "Jumlah Menjawab Quiz":N_answered_questions, 
-                        "Jumlah Melihat Quiz":N_questionnaire_views, "Jumlah Mengirim Quiz":N_questionnaires_submitted,    
-                        "Jumlah Ulasan Quiz":N_reviews_questionnaire,  "Minggu Keberapa Akses LMS":Days_first_access_x,   
-                        "Jumlah Masuk Ke Mata Kuliah":N_entries_course_x, "Hasil Prediksi":predit,
-                    }
-                ]
-            )
-
-            # Add the new vendor data to the existing data
-            updated_df = pd.concat([data1, data_prediksi], ignore_index=True)
-            conn.update(worksheet="HasilPrediksi", data=updated_df)
-            v_data = data_prediksi.iloc[:, 4:22]
-            st.dataframe(v_data)
-            
-
         #menyimpan data agar bisa didownload di txt
         isi = ( "Prediksi Performa Akademik Mahasiswa Menggunakan Data Non-Akademik dan Akademik" + "\n" + "\n" +
                 "#Data Non Akademik" + "\n" +
