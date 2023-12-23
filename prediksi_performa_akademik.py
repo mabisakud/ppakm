@@ -194,9 +194,9 @@ def main():
     elif choice == "Hasil":
         st.subheader("Data Hasil Prediksi")
         conn = st.connection("gsheets", type=GSheetsConnection)
-        data1 = conn.read(worksheet="HasilPrediksi",usecols=list(range(22)), ttl=5)
+        data1 = conn.read(worksheet="HasilPrediksi",usecols=list(range(16)), ttl=5)
         data1 = data1.dropna(how="all")
-        v_data = data1.iloc[:, 4:22]
+        v_data = data1.iloc[:, 4:16]
         st.dataframe(v_data)
         
     elif choice == "Penilaian":
