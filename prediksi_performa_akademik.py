@@ -423,7 +423,7 @@ def main():
     elif choice == "Tentang":
         st.subheader("Tentang Aplikasi")
         st.write('Sistem Informasi Prediksi Performa Akademik Mahasiswa ini dibuat dengan menggunakan bahasa pemprograman :blue[Python] dan :blue[Streamlit] sedangkan database yang digunakan adalah :blue[Google Sheets], Sisfo ini menggunakan model yang terbentuk dari algoritma :blue[Gradient Boosting Trees] yang telah dioptimasi hyperparameternya dengan menggunakan algoritma :blue[Gread Search]. Sedangkan data yang digunakan untuk membangun model berasal dari data akademik dan data non-akademikdemik yang diperoleh dari :blue[Universitas Muria Kudus].')
-        st.write('Dalam melakukan prediksi Model ini memiliki tingkat kesalahan sebesar :blue[37%], Adapun nilai bobot dari masing-masing fitur ditunjukkan pada halaman prediksi dan pada gambar dibawah ini.')
+        st.write('Dalam melakukan prediksi Model ini memiliki tingkat kesalahan sebesar :blue[21%], Adapun nilai bobot dari masing-masing fitur ditunjukkan pada halaman prediksi dan pada gambar dibawah ini.')
 
         st.image(image, caption='Bobot Fitur')
 
