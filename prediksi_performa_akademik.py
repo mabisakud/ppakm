@@ -34,7 +34,7 @@ def main():
         st.write('Prediksi performa akademik ini menggunakan dua sumber data yaitu 1). Data Akademik yang berasal dari aktifitas mahasiswa di LMS (Moodle),  2). Data non-akademik (ekonomi, domisili, gender, keikutsertaan mahasiswa dalam berorganisasi kampus). Sistem informasi prediksi ini sangat tepat jika digunakan untuk memprediksi performa akademik mahasiswa semester dua dan empat.')
         
         st.subheader("Masukkan Data Diri Anda")
-        nama = st.text_input('Nama :blue[(Nama Anda tidak dipublikasikan)]')
+        nama = st.text_input('Nama :blue[(Nama Anda tidak dipublikasikan)], Data anda tidak termasuk bagian dari Prediksi')
 
         colus,colkel = st.columns(2)
         with colus:
@@ -48,27 +48,24 @@ def main():
 
         kota_tinggal = st.text_input('Kota Tinggal :blue[(Kota tingal Anda)]')
 
-        st.subheader("Masukkan Data Akademik (Kegiatan di LMS)")
+        st.markdown("""<hr style="height:10px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)
+        
+        st.write("Ini merupakan bagian Prediksi Performa Akademik Mahasiswa, Anda dapat melakukan percobaan prediksi berulang kali, dengan mengganti nilai-nilai fiturnya")
         st.write('Perlu dipahami bahwasanya masing-masing fitur memiliki bobot yang berbeda, masing-masing bobot ditunjukkan pada caption fitur')
+        st.subheader("Masukkan Data Akademik (Kegiatan di LMS)")
         st.write('Untuk menginputkan nilai, silahkan :blue[geser slider kekanan untuk menambah atau kekiri untuk mengurangi]')
         
         col1,col2 = st.columns(2)
         with col1:
-            Total_login = st.slider('Jumlah Login LMS :blue[(0,120)]', 0, 140)
-            N_access_forum = st.slider('Jumlah Akses Forum LMS :blue[(0,117)]', 0, 3000)
-            N_access_didactic_units = st.slider('Jumlah Akses Materi :blue[(0,077)]', 0, 750)
-            Total_assignments = st.slider('Jumlah Tugas :blue[(0,066)]', 0, 1000)
-            N_assignments_submitted = st.slider('Jumlah Upload Tugas :blue[(0,187)]', 0, 150)
-            N_access_questionnaires = st.slider('Jumlah Membuka Quiz :blue[(0,038)]', 0, 1000)
-            N_attempts_questionnaires = st.slider('Jumlah Melengkapi Quiz :blue[(0,039)]', 0, 1000)
-
+            Total_login = st.slider('Jumlah Login LMS :blue[(0,303)]', 0, 140)
+            N_access_forum = st.slider('Jumlah Akses Forum LMS :blue[(0,130)]', 0, 3000)
+            N_access_didactic_units = st.slider('Jumlah Akses Materi :blue[(0,107)]', 0, 750)
+            N_assignments_submitted = st.slider('Jumlah Upload Tugas :blue[(0,128)]', 0, 150)
+            
         with col2:
-            N_answered_questions = st.slider('Jumlah Menjawab Quiz :blue[(0,055)]', 0, 120)
-            N_questionnaire_views = st.slider('Jumlah Melihat Quiz :blue[(0,033)]', 0, 1000)
-            N_questionnaires_submitted = st.slider('Jumlah Mengirim Quiz :blue[(0,043)]', 0, 40)
-            N_reviews_questionnaire = st.slider('Jumlah Ulasan Quiz :blue[(0,072)]', 0, 500)
-            Days_first_access_x = st.slider('Minggu Keberapa Akses LMS :blue[(0,014)]', 0, 3)
-            N_entries_course_x = st.slider('Jumlah Masuk Ke Mata Kuliah :blue[(0,057)]', 0, 3000)
+            N_reviews_questionnaire = st.slider('Jumlah Ulasan Quiz :blue[(0,089)]', 0, 500)
+            Days_first_access_x = st.slider('Minggu Keberapa Akses LMS :blue[(0,033)]', 0, 3)
+            N_entries_course_x = st.slider('Jumlah Masuk Ke Mata Kuliah :blue[(0,089)]', 0, 3000)
 
 
         st.subheader("Masukkan Data Non Akademik")
@@ -76,18 +73,18 @@ def main():
         cols,colss = st.columns(2)
         with cols:
             Gender = st.radio(
-                    'Jenis Kelamin :blue[(0,025)]',
+                    'Jenis Kelamin :blue[(0,026)]',
                     ('Pria', 'Wanita'))
             if Gender == 'Pria':
                 Gender = 1
             else:
                 Gender = 0
 
-            Campus_organization = st.slider('Jumlah Organisasi Kampus Yang Diikuti :blue[(0,011)]', 0, 4)
+            Campus_organization = st.slider('Jumlah Organisasi Kampus Yang Diikuti :blue[(0,053)]', 0, 4)
 
         with colss:
             Economy = st.selectbox(
-                    'Pendapatan Orang Tua :blue[(0,025)]',
+                    'Pendapatan Orang Tua :blue[(0,026)]',
                     ('100.000 - 600.000', '500.000 - 1.000.000', '1.000.000 - 2.500.000', 
                         '2.500.000 - 5.000.000', '5.000.000 - 7.500.000',
                         '7.500.000 - 10.000.000', '> 10.000.000')) 
@@ -107,7 +104,7 @@ def main():
                 Economy = 7
 
             Domicile = st.selectbox(
-                    'Jarak Kampus dengan Domisili :blue[(0,022)]',
+                    'Jarak Kota Domisili dengan Kampus :blue[(0,014)]',
                     ('Dalam Kota', 'Kota Sebelah', 'Jarak Satu Kota', 'Dalam Satu Pulau', 'Diluar Pulau'))
 
             if Domicile == 'Dalam Kota':
@@ -120,7 +117,7 @@ def main():
                 Domicile = 4
             else : Domicile = 5            
 
-        with open("prediksi_performa_akademik.sav", "rb") as file:
+        with open("ppakm.sav", "rb") as file:
             model = pickle.load(file)
 
         predit = ''
@@ -164,10 +161,8 @@ def main():
                 predit = model.predict(
                     [[Gender, Domicile, Economy, Campus_organization, 
                       Total_login, N_access_forum, N_access_didactic_units, 
-                      Total_assignments, N_assignments_submitted, N_access_questionnaires, 
-                      N_attempts_questionnaires, N_answered_questions, 
-                      N_questionnaire_views, N_questionnaires_submitted, 
-                      N_reviews_questionnaire, Days_first_access_x, N_entries_course_x]]
+                      N_assignments_submitted, N_reviews_questionnaire, 
+                      Days_first_access_x, N_entries_course_x]]
                 )
                 st.success (f"Hasil Prediksi : %.2f" % predit)
     
@@ -182,11 +177,9 @@ def main():
                             "Nama":nama, "Status":status, "Jenis_Kelamin":jenkel, "Kota_Tinggal":kota_tinggal, "Jenis Kelamin":jekel, 
                             "Ekonomi":pendap, "Domisili":Domisili, "Organisasi Kampus":Campus_organization,
                             "Jumlah Login LMS":Total_login, "Jumlah Akses Forum":N_access_forum, "Jumlah Akses Materi":N_access_didactic_units, 
-                            "Jumlah Tugas":Total_assignments, "Jumlah Upload Tugas":N_assignments_submitted, "Jumlah Membuka Quiz":N_access_questionnaires,
-                            "Jumlah Melengkapi Quiz":N_attempts_questionnaires, "Jumlah Menjawab Quiz":N_answered_questions, 
-                            "Jumlah Melihat Quiz":N_questionnaire_views, "Jumlah Mengirim Quiz":N_questionnaires_submitted,    
-                            "Jumlah Ulasan Quiz":N_reviews_questionnaire,  "Minggu Keberapa Akses LMS":Days_first_access_x,   
-                            "Jumlah Masuk Ke Mata Kuliah":N_entries_course_x, "Hasil Prediksi":predit,
+                            "Jumlah Upload Tugas":N_assignments_submitted, "Jumlah Ulasan Quiz":N_reviews_questionnaire,  
+                            "Minggu Keberapa Akses LMS":Days_first_access_x, "Jumlah Masuk Ke Mata Kuliah":N_entries_course_x, 
+                            "Hasil Prediksi":predit,
                         }
                     ]
                 )
@@ -202,9 +195,9 @@ def main():
     elif choice == "Hasil":
         st.subheader("Data Hasil Prediksi")
         conn = st.connection("gsheets", type=GSheetsConnection)
-        data1 = conn.read(worksheet="HasilPrediksi",usecols=list(range(22)), ttl=5)
+        data1 = conn.read(worksheet="HasilPrediksi",usecols=list(range(16)), ttl=5)
         data1 = data1.dropna(how="all")
-        v_data = data1.iloc[:, 4:22]
+        v_data = data1.iloc[:, 4:16]
         st.dataframe(v_data)
         
     elif choice == "Penilaian":
@@ -431,7 +424,7 @@ def main():
     elif choice == "Tentang":
         st.subheader("Tentang Aplikasi")
         st.write('Sistem Informasi Prediksi Performa Akademik Mahasiswa ini dibuat dengan menggunakan bahasa pemprograman :blue[Python] dan :blue[Streamlit] sedangkan database yang digunakan adalah :blue[Google Sheets], Sisfo ini menggunakan model yang terbentuk dari algoritma :blue[Gradient Boosting Trees] yang telah dioptimasi hyperparameternya dengan menggunakan algoritma :blue[Gread Search]. Sedangkan data yang digunakan untuk membangun model berasal dari data akademik dan data non-akademikdemik yang diperoleh dari :blue[Universitas Muria Kudus].')
-        st.write('Dalam melakukan prediksi Model ini memiliki tingkat kesalahan sebesar :blue[37%], Adapun nilai bobot dari masing-masing fitur ditunjukkan pada halaman prediksi dan pada gambar dibawah ini.')
+        st.write('Dalam melakukan prediksi Model ini memiliki tingkat kesalahan sebesar :blue[21%], Adapun nilai bobot dari masing-masing fitur ditunjukkan pada halaman prediksi dan pada gambar dibawah ini.')
 
         st.image(image, caption='Bobot Fitur')
 
