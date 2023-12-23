@@ -50,7 +50,7 @@ def main():
 
         st.markdown("""<hr style="height:10px;border:none;color:#333;background-color:#333;" /> """, unsafe_allow_html=True)
         
-        st.title("Ini merupakan bagian Prediksi Performa Akademik Mahasiswa, Anda dapat melakukan berkali kali percobaan prediksi, dengan mengganti nilai-nilai fiturnya")
+        st.write("Ini merupakan bagian Prediksi Performa Akademik Mahasiswa, Anda dapat melakukan percobaan prediksi berulang kali, dengan mengganti nilai-nilai fiturnya")
         st.subheader("Masukkan Data Akademik (Kegiatan di LMS)")
         st.write('Perlu dipahami bahwasanya masing-masing fitur memiliki bobot yang berbeda, masing-masing bobot ditunjukkan pada caption fitur')
         st.write('Untuk menginputkan nilai, silahkan :blue[geser slider kekanan untuk menambah atau kekiri untuk mengurangi]')
