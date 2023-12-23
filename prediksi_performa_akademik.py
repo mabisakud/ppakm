@@ -103,7 +103,7 @@ def main():
                 Economy = 7
 
             Domicile = st.selectbox(
-                    'Jarak Kampus dengan Domisili :blue[(0,014)]',
+                    'Jarak Kota Domisili dengan Kampus :blue[(0,014)]',
                     ('Dalam Kota', 'Kota Sebelah', 'Jarak Satu Kota', 'Dalam Satu Pulau', 'Diluar Pulau'))
 
             if Domicile == 'Dalam Kota':
